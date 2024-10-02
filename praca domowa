@@ -1,0 +1,25 @@
+a = int(input())
+while a > 0:
+    if a % 3 >= 1:
+        print(a)
+        a -= 1
+    else:
+        a-=1
+
+a = int(input())
+while a > 0:
+    if a % 9 == 0:
+        print(a)
+        a -= 1
+    else:
+        a-=1
+
+ while True :
+    a = input("zadaj pytanie ")
+    print("perhaps")
+
+a = int(input())
+while a > 0:
+        print(f"2**{a}",2**a)
+        a -= 1
+
