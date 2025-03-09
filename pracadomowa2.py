@@ -12,9 +12,10 @@ class Postac:
         self.poziom = 1
         self.zyje = True
         self.ekwipunek = []
+        self.mikstury = 3  
 
     def odejmij_hp(self, dmg):
-        dmg = max(0, dmg - self.obrona)  # Obrona zmniejsza otrzymane obrażenia
+        dmg = max(0, dmg - self.obrona)
         self.hp -= dmg
         if self.hp <= 0:
             self.zyje = False
@@ -45,6 +46,14 @@ class Postac:
             print("Ekwipunek:", ", ".join(self.ekwipunek))
         else:
             print("Ekwipunek jest pusty.")
+
+    def uzyj_mikstury(self):
+        if self.mikstury > 0:
+            self.hp = min(self.max_hp, self.hp + 20)
+            self.mikstury -= 1
+            print("Wypiłeś miksturę i odzyskałeś zdrowie!")
+        else:
+            print("Brak mikstur!")
 
 class Sigma(Postac):
     def __init__(self):
@@ -105,6 +114,18 @@ class Smok(Przeciwnik):
     def __init__(self):
         super().__init__("Smok", random.randint(100, 200), random.randint(10, 20), 5, 20, 50)
 
+class Szkielet(Przeciwnik):
+    def __init__(self):
+        super().__init__("Szkielet", random.randint(40, 80), random.randint(5, 10), 2, 7, 12)
+
+class Troll(Przeciwnik):
+    def __init__(self):
+        super().__init__("Troll", random.randint(80, 150), random.randint(8, 15), 4, 15, 25)
+
+class Minotaur(Przeciwnik):
+    def __init__(self):
+        super().__init__("Minotaur", random.randint(120, 250), random.randint(12, 22), 6, 30, 60)
+
 klasy_postaci = {"a": Sigma, "b": Wojownik, "c": Mag, "d": Zlodziej, "e": Rycerz, "f": Nekromanta, "g": Zabojca}
 print("Wybierz swoją postać:")
 print("a) Sigma, b) Wojownik, c) Mag, d) Złodziej, e) Rycerz, f) Nekromanta, g) Zabójca")
@@ -113,12 +134,12 @@ bohater = klasy_postaci.get(wybor, Sigma)()
 
 licznik_zabitych = 0
 while bohater.czy_zyje():
-    przeciwnik = random.choice([Goblin(), Ork(), Smok()])
+    przeciwnik = random.choice([Goblin(), Ork(), Smok(), Szkielet(), Troll(), Minotaur()])
     print(f"Nowy przeciwnik: {przeciwnik.nazwa} (HP: {przeciwnik.hp})")
-    
+
     while przeciwnik.czy_zyje():
         print(f"Twoje HP: {bohater.hp}")
-        print("Wybierz akcję: a) Atak b) Superatak c) Użyj mikstury d) Ucieczka")
+        print("Wybierz akcję: a) Atak b) Superatak c) Użyj mikstury d) Ucieczka e) Ekwipunek")
         wybor = input().lower()
 
         if wybor == "a":
@@ -128,11 +149,12 @@ while bohater.czy_zyje():
             przeciwnik.odejmij_hp(bohater.superatak())
             print("Użyłeś superataku!")
         elif wybor == "c":
-            bohater.hp = min(bohater.max_hp, bohater.hp + 20)
-            print("Wypiłeś miksturę i odzyskałeś zdrowie!")
+            bohater.uzyj_mikstury()
         elif wybor == "d":
             print("Uciekłeś!")
             break
+        elif wybor == "e":
+            bohater.wyswietl_ekwipunek()
         else:
             print("Nieznana opcja, spróbuj ponownie.")
             continue
@@ -148,4 +170,3 @@ while bohater.czy_zyje():
         print(f"Pokonałeś {przeciwnik.nazwa}!")
 
 print("Twoja postać poległa w walce...")
-
