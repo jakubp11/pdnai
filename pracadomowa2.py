@@ -1,87 +1,135 @@
 import random
 
-class Sigma:
-    def __init__(self):
-        self.hp = 100
-        self.atak = 10
-        self.zyje = True
+class Postac:
+    def __init__(self, imie, hp, atak, obrona, zloto, exp):
+        self.imie = imie
+        self.hp = hp
+        self.max_hp = hp
+        self.atak = atak
+        self.obrona = obrona
+        self.zloto = zloto
+        self.exp = exp
         self.poziom = 1
-        self.exp = 0
-        self.zloto = 0
-        self.obrona = False
+        self.zyje = True
+        self.ekwipunek = []
 
     def odejmij_hp(self, dmg):
-        if self.obrona:
-            dmg //= 2  
+        dmg = max(0, dmg - self.obrona)  # Obrona zmniejsza otrzymane obrażenia
         self.hp -= dmg
         if self.hp <= 0:
             self.zyje = False
 
-    def czy_zyje(self):
-        return self.zyje
-
     def basic_atak(self):
-        return self.atak
+        return self.atak + random.randint(1, 5)
 
     def superatak(self):
         return self.atak * 2
+
+    def zdobycie_zlota(self, ilosc):
+        self.zloto += ilosc
 
     def zdobadz_exp(self, ilosc):
         self.exp += ilosc
         if self.exp >= 10 * self.poziom:
             self.poziom += 1
-            self.atak += 2
-            self.hp += 20
-            print(f"Sigma awansowała na poziom {self.poziom}!")
+            self.atak += 3
+            self.max_hp += 20
+            self.hp = self.max_hp
+            print(f"{self.imie} awansował na poziom {self.poziom}!")
 
-    def zdobycie_zlota(self, ilosc):
-        self.zloto += ilosc
+    def dodaj_ekwipunek(self, przedmiot):
+        self.ekwipunek.append(przedmiot)
+
+    def wyswietl_ekwipunek(self):
+        if self.ekwipunek:
+            print("Ekwipunek:", ", ".join(self.ekwipunek))
+        else:
+            print("Ekwipunek jest pusty.")
+
+class Sigma(Postac):
+    def __init__(self):
+        super().__init__("Sigma", 100, 10, 3, 0, 0)
+
+class Wojownik(Postac):
+    def __init__(self):
+        super().__init__("Wojownik", 120, 15, 5, 0, 0)
+
+class Mag(Postac):
+    def __init__(self):
+        super().__init__("Mag", 80, 25, 2, 0, 0)
+
+class Zlodziej(Postac):
+    def __init__(self):
+        super().__init__("Złodziej", 90, 12, 4, 0, 0)
+
+class Rycerz(Postac):
+    def __init__(self):
+        super().__init__("Rycerz", 150, 18, 6, 0, 0)
+
+class Nekromanta(Postac):
+    def __init__(self):
+        super().__init__("Nekromanta", 100, 20, 3, 0, 0)
+
+class Zabojca(Postac):
+    def __init__(self):
+        super().__init__("Zabójca", 85, 30, 2, 0, 0)
 
 class Przeciwnik:
-    def __init__(self, nazwa, hp, atak, exp, zloto):
+    def __init__(self, nazwa, hp, atak, obrona, exp, zloto):
         self.nazwa = nazwa
         self.hp = hp
         self.atak = atak
+        self.obrona = obrona
         self.exp = exp
         self.zloto = zloto
         self.zyje = True
 
     def odejmij_hp(self, dmg):
+        dmg = max(0, dmg - self.obrona)
         self.hp -= dmg
         if self.hp <= 0:
             self.zyje = False
 
-    def czy_zyje(self):
-        return self.zyje
-
     def basic_atak(self):
-        return self.atak
+        return self.atak + random.randint(1, 4)
 
 class Goblin(Przeciwnik):
     def __init__(self):
-        super().__init__("Goblin", random.randint(30, 70), random.randint(3, 8), 5, 10)
+        super().__init__("Goblin", random.randint(30, 70), random.randint(3, 8), 1, 5, 10)
 
-sigma = Sigma()
+class Ork(Przeciwnik):
+    def __init__(self):
+        super().__init__("Ork", random.randint(50, 100), random.randint(6, 12), 3, 8, 15)
+
+class Smok(Przeciwnik):
+    def __init__(self):
+        super().__init__("Smok", random.randint(100, 200), random.randint(10, 20), 5, 20, 50)
+
+klasy_postaci = {"a": Sigma, "b": Wojownik, "c": Mag, "d": Zlodziej, "e": Rycerz, "f": Nekromanta, "g": Zabojca}
+print("Wybierz swoją postać:")
+print("a) Sigma, b) Wojownik, c) Mag, d) Złodziej, e) Rycerz, f) Nekromanta, g) Zabójca")
+wybor = input("Twój wybór: ").lower()
+bohater = klasy_postaci.get(wybor, Sigma)()
+
 licznik_zabitych = 0
-
-while sigma.czy_zyje():
-    przeciwnik = Goblin()
+while bohater.czy_zyje():
+    przeciwnik = random.choice([Goblin(), Ork(), Smok()])
     print(f"Nowy przeciwnik: {przeciwnik.nazwa} (HP: {przeciwnik.hp})")
     
     while przeciwnik.czy_zyje():
-        print(f"Twoje HP: {sigma.hp}")
-        print("Wybierz akcję: a) Atak b) Superatak c) Obrona d) Ucieczka")
+        print(f"Twoje HP: {bohater.hp}")
+        print("Wybierz akcję: a) Atak b) Superatak c) Użyj mikstury d) Ucieczka")
         wybor = input().lower()
 
         if wybor == "a":
-            przeciwnik.odejmij_hp(sigma.basic_atak())
+            przeciwnik.odejmij_hp(bohater.basic_atak())
             print("Zadałeś cios!")
         elif wybor == "b":
-            przeciwnik.odejmij_hp(sigma.superatak())
+            przeciwnik.odejmij_hp(bohater.superatak())
             print("Użyłeś superataku!")
         elif wybor == "c":
-            sigma.obrona = True
-            print("Przyjąłeś postawę obronną!")
+            bohater.hp = min(bohater.max_hp, bohater.hp + 20)
+            print("Wypiłeś miksturę i odzyskałeś zdrowie!")
         elif wybor == "d":
             print("Uciekłeś!")
             break
@@ -90,14 +138,14 @@ while sigma.czy_zyje():
             continue
 
         if przeciwnik.czy_zyje():
-            sigma.odejmij_hp(przeciwnik.basic_atak())
-            print(f"Przeciwnik atakuje! Twoje HP: {sigma.hp}")
-        sigma.obrona = False
+            bohater.odejmij_hp(przeciwnik.basic_atak())
+            print(f"Przeciwnik atakuje! Twoje HP: {bohater.hp}")
 
-    if sigma.czy_zyje() and przeciwnik.hp <= 0:
+    if bohater.czy_zyje() and przeciwnik.hp <= 0:
         licznik_zabitych += 1
-        sigma.zdobadz_exp(przeciwnik.exp)
-        sigma.zdobycie_zlota(przeciwnik.zloto)
+        bohater.zdobadz_exp(przeciwnik.exp)
+        bohater.zdobycie_zlota(przeciwnik.zloto)
         print(f"Pokonałeś {przeciwnik.nazwa}!")
 
-print("Sigma poległa w walce...")
+print("Twoja postać poległa w walce...")
+
